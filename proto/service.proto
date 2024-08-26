@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package service;
+
+option go_package = "go-apache-go/proto;service";
+
+service UserService {
+  rpc CreateUser (UserRequest) returns (UserResponse);
+  rpc GetUser (UserId) returns (UserResponse);
+  rpc UpdateUser (UserRequest) returns (Empty);
+  rpc DeleteUser (UserId) returns (Empty);
+}
+
+message UserRequest {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+message UserResponse {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+message UserId {
+  int32 id = 1;
+}
+
+message Empty {}
