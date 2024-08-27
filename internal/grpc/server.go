@@ -2,58 +2,50 @@ package grpc
 
 import (
 	"context"
+	"google.golang.org/grpc"
 	"log"
 	"net"
 
 	pb "go-apache-age/go-apache-go/proto"
-
-	"google.golang.org/grpc"
+	"go-apache-age/internal/db"
 )
 
 type server struct {
 	pb.UnimplementedUserServiceServer
-	// You can add references to your databases here
+	DB *db.DB
 }
 
-func (s *server) CreateUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResponse, error) {
-	// Implement CreateUser logic
-	// Placeholder response
-	return &pb.UserResponse{
-		Id:    1, // Example ID
-		Name:  req.Name,
-		Email: req.Email,
-	}, nil
+func (s *server) CreateGraph(ctx context.Context, req *pb.CreateGraphRequest) (*pb.CreateGraphResponse, error) {
+	err := s.DB.CreateGraph(req.GraphName)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.CreateGraphResponse{Message: "Graph created successfully"}, nil
 }
 
-func (s *server) GetUser(ctx context.Context, req *pb.UserId) (*pb.UserResponse, error) {
-	// Implement GetUser logic
-	// Placeholder response
-	return &pb.UserResponse{
-		Id:    req.Id,
-		Name:  "John Doe",     // Example name
-		Email: "john@doe.com", // Example email
-	}, nil
+func (s *server) AddVertex(ctx context.Context, req *pb.AddVertexRequest) (*pb.AddVertexResponse, error) {
+	err := s.DB.AddVertex(req.GraphName, req.Label, req.Properties)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.AddVertexResponse{Message: "Vertex added successfully"}, nil
 }
 
-func (s *server) UpdateUser(ctx context.Context, req *pb.UserRequest) (*pb.Empty, error) {
-	// Implement UpdateUser logic
-	// Placeholder response
-	return &pb.Empty{}, nil
+func (s *server) AddEdge(ctx context.Context, req *pb.AddEdgeRequest) (*pb.AddEdgeResponse, error) {
+	err := s.DB.AddEdge(req.GraphName, req.Label, req.Properties, req.FromVertexId, req.ToVertexId)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.AddEdgeResponse{Message: "Edge added successfully"}, nil
 }
 
-func (s *server) DeleteUser(ctx context.Context, req *pb.UserId) (*pb.Empty, error) {
-	// Implement DeleteUser logic
-	// Placeholder response
-	return &pb.Empty{}, nil
-}
-
-func StartGRPCServer() {
+func StartGRPCServer(db *db.DB) {
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterUserServiceServer(s, &server{})
+	pb.RegisterUserServiceServer(s, &server{DB: db})
 	log.Printf("gRPC server listening on :50051")
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
