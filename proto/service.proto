@@ -1,30 +1,40 @@
 syntax = "proto3";
 
-package service;
-
 option go_package = "go-apache-go/proto;service";
+package proto;
 
 service UserService {
-  rpc CreateUser (UserRequest) returns (UserResponse);
-  rpc GetUser (UserId) returns (UserResponse);
-  rpc UpdateUser (UserRequest) returns (Empty);
-  rpc DeleteUser (UserId) returns (Empty);
+  rpc CreateGraph (CreateGraphRequest) returns (CreateGraphResponse);
+  rpc AddVertex (AddVertexRequest) returns (AddVertexResponse);
+  rpc AddEdge (AddEdgeRequest) returns (AddEdgeResponse);
 }
 
-message UserRequest {
-  int32 id = 1;
-  string name = 2;
-  string email = 3;
+message CreateGraphRequest {
+  string graphName = 1;
 }
 
-message UserResponse {
-  int32 id = 1;
-  string name = 2;
-  string email = 3;
+message CreateGraphResponse {
+  string message = 1;
 }
 
-message UserId {
-  int32 id = 1;
+message AddVertexRequest {
+  string graphName = 1;
+  string label = 2;
+  string properties = 3;
 }
 
-message Empty {}
+message AddVertexResponse {
+  string message = 1;
+}
+
+message AddEdgeRequest {
+  string graphName = 1;
+  string label = 2;
+  string properties = 3;
+  string fromVertexId = 4;
+  string toVertexId = 5;
+}
+
+message AddEdgeResponse {
+  string message = 1;
+}
